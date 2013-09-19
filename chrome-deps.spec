@@ -27,7 +27,7 @@
 %endif
 
 Name:		chrome-deps
-Version:	1.0
+Version:	1.1
 Release:	1%{?dist}
 Summary:	Fedora libraries for running chrome on EL6
 Group:		System Environment/Libraries
