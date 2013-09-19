@@ -10,7 +10,7 @@
 %define gtk2ver		2.24.7-3.fc15
 %define gtk2libver	2400.7
 
-%define fedoramirror	http://mirrors.kernel.org/fedora/updates/15/%{_arch}
+%define fedoramirror	http://archives.fedoraproject.org/pub/archive/fedora/linux/updates/15/%{_arch}
 
 %define instdir		/opt/google/chrome/lib
 
