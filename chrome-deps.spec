@@ -12,7 +12,13 @@
 
 %define fedoramirror	http://archives.fedoraproject.org/pub/archive/fedora/linux/updates/15/%{_arch}
 
-%define instdir		/opt/google/chrome/lib
+%define chromedir	/opt/google/chrome
+%define instdir		%{chromedir}/lib
+
+# For modify_wrapper script.
+%define wrapper_mod_version	1.01
+%define chrome_wrapper		%{chromedir}/google-chrome
+%define chrome_defaults		/etc/default/google-chrome
 
 %ifarch x86_64
 %define ld_linux	ld-linux-x86-64
@@ -27,10 +33,11 @@ Summary:	Fedora libraries for running chrome on EL6
 Group:		System Environment/Libraries
 License:	LGPLv2+ and LGPLv2+ with exceptions and GPLv2+ and GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and BSD
 URL:		https://github.com/adamel/chrome-deps
-Source0:	%{fedoramirror}/glibc-%{glibcver}-%{glibcrel}.%{_target_cpu}.rpm
-Source1:	%{fedoramirror}/libstdc++-%{libstdcxxver}.%{_target_cpu}.rpm
-Source2:	%{fedoramirror}/glib2-%{glib2ver}.%{_target_cpu}.rpm
-Source3:	%{fedoramirror}/gtk2-%{gtk2ver}.%{_target_cpu}.rpm
+Source:		%{name}-%{version}.tar.gz
+Source1:	%{fedoramirror}/glibc-%{glibcver}-%{glibcrel}.%{_target_cpu}.rpm
+Source2:	%{fedoramirror}/libstdc++-%{libstdcxxver}.%{_target_cpu}.rpm
+Source3:	%{fedoramirror}/glib2-%{glib2ver}.%{_target_cpu}.rpm
+Source4:	%{fedoramirror}/gtk2-%{gtk2ver}.%{_target_cpu}.rpm
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 
@@ -39,14 +46,16 @@ Libraries (glibc, libstdc++, glib2, gtk2) taken from Fedora 15, in
 order to be able to run latest Google Chrome on EL6 and derivates.
 
 %prep
-%setup -q -c %{name}-%{version} -T
+%setup -q
 # Extract required libraries.
-rpm2cpio %{SOURCE0} | cpio -vid ./%{_lib}/libc-%{glibcver}.so ./%{_lib}/ld-%{glibcver}.so
-rpm2cpio %{SOURCE1} | cpio -vid .%{_libdir}/libstdc++.so.%{stdcxxver}
-rpm2cpio %{SOURCE2} | cpio -vid ./%{_lib}/libglib-2.0.so.0.%{glib2libver}
-rpm2cpio %{SOURCE3} | cpio -vid .%{_libdir}/libgtk-x11-2.0.so.0.%{gtk2libver} .%{_libdir}/libgdk-x11-2.0.so.0.%{gtk2libver}
+rpm2cpio %{SOURCE1} | cpio -vid ./%{_lib}/libc-%{glibcver}.so ./%{_lib}/ld-%{glibcver}.so
+rpm2cpio %{SOURCE2} | cpio -vid .%{_libdir}/libstdc++.so.%{stdcxxver}
+rpm2cpio %{SOURCE3} | cpio -vid ./%{_lib}/libglib-2.0.so.0.%{glib2libver}
+rpm2cpio %{SOURCE4} | cpio -vid .%{_libdir}/libgtk-x11-2.0.so.0.%{gtk2libver} .%{_libdir}/libgdk-x11-2.0.so.0.%{gtk2libver}
 
 %build
+# Build preload module.
+make -C src OPTFLAGS="$RPM_OPT_FLAGS"
 # Patch glibc to reference the local copy of ld-linux.
 sed -e "s/%{ld_linux}.so.2/%{ld_linux}.so.0/g" < ./%{_lib}/libc-%{glibcver}.so > ./%{_lib}/libc-%{glibcver}.so.patched
 # Patch the identity of ld-linux itself to get RPM provides right.
@@ -56,6 +65,9 @@ sed -e "s/%{ld_linux}.so.2/%{ld_linux}.so.0/g" < ./%{_lib}/ld-%{glibcver}.so > .
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{instdir}
+# Install preload module.
+install -m 0755 ./src/unset_var.so $RPM_BUILD_ROOT%{instdir}/
+# Install patched libraries.
 install -m 0755 ./%{_lib}/ld-%{glibcver}.so.patched $RPM_BUILD_ROOT%{instdir}/ld-%{glibcver}.so
 ln -s ld-%{glibcver}.so $RPM_BUILD_ROOT%{instdir}/%{ld_linux}.so.0
 install -m 0755 ./%{_lib}/libc-%{glibcver}.so.patched $RPM_BUILD_ROOT%{instdir}/libc-%{glibcver}.so
@@ -68,14 +80,29 @@ install -m 0755 .%{_libdir}/libgdk-x11-2.0.so.0.%{gtk2libver} $RPM_BUILD_ROOT%{i
 ln -s libgdk-x11-2.0.so.0.%{gtk2libver} $RPM_BUILD_ROOT%{instdir}/libgdk-x11-2.0.so.0
 install -m 0755 .%{_libdir}/libgtk-x11-2.0.so.0.%{gtk2libver} $RPM_BUILD_ROOT%{instdir}/
 ln -s libgtk-x11-2.0.so.0.%{gtk2libver} $RPM_BUILD_ROOT%{instdir}/libgtk-x11-2.0.so.0
-
+# Install chrome wrapper script modification script.
+cat src/modify_wrapper | sed \
+   -e "s#@MODIFY_WRAPPER@#modify_wrapper#g" \
+   -e "s#@WRAPPER_MOD_VERSION@#%{wrapper_mod_version}#g" \
+   -e "s#@SCRIPTNAME@#install_chrome.sh#g" \
+   -e "s#@DEPS_NAME@#%{name}#g" \
+   -e "s#@CHROME_DEFAULTS@#%{chrome_defaults}#g" \
+   -e "s#@UNSETLIB@#%{instdir}/unset_var.so#g" \
+   -e "s#@CHROME_WRAPPER@#%{chrome_wrapper}#g" \
+> $RPM_BUILD_ROOT%{chromedir}/modify_wrapper
+chmod 0755 $RPM_BUILD_ROOT%{chromedir}/modify_wrapper
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 
+%post
+%{chromedir}/modify_wrapper
+
+
 %files
 %defattr(-,root,root,-)
+%{chromedir}/modify_wrapper
 %{instdir}/ld-%{glibcver}.so
 %{instdir}/%{ld_linux}.so.0
 %{instdir}/libc-%{glibcver}.so
@@ -88,8 +115,14 @@ rm -rf $RPM_BUILD_ROOT
 %{instdir}/libgdk-x11-2.0.so.0
 %{instdir}/libgtk-x11-2.0.so.0.%{gtk2libver}
 %{instdir}/libgtk-x11-2.0.so.0
+%{instdir}/unset_var.so
+
 
 %changelog
+* Thu Sep 19 2013 Marcus Sundberg <marcus.sundberg@aptilo.com> - 1.1-1
+- Add unset_var preload wrapper from Richard K. Lloyd. This fixes
+  the crashes when chrome tries to execute external programs.
+
 * Mon Jul 22 2013 Marcus Sundberg <marcus.sundberg@aptilo.com> - 1.0-1
 - Initial version - concept based on install_chrome.sh from
   http://chrome.richardlloyd.org.uk/
