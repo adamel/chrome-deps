@@ -102,7 +102,20 @@ return_type function_name(param_1_type param_1_name,param_2_type param_2_name,..
    INTERCEPT_RESTORE_VAR; \
 }
 
-/* Only 3 routines intercepted so far - may be more in the future */
+/* execvp() */
+#define INTERCEPT_1_PARAMS(return_type,function_name,function_name_str,param_1_type,param_1_name) \
+return_type function_name(param_1_type param_1_name) \
+{ \
+   INTERCEPT_LOCAL_VARS(return_type); \
+   return_type (*original_##function_name)(param_1_type); \
+   original_##function_name=dlsym(RTLD_NEXT,function_name_str); \
+   INTERCEPT_SAVE_VAR(param_1_name); \
+   retval=(*original_##function_name)(param_1_name); \
+   INTERCEPT_RESTORE_VAR; \
+}
+
+/* Only 4 routines intercepted so far - may be more in the future */
+INTERCEPT_1_PARAMS(int,system,"system",const char *,cmd);
 INTERCEPT_2_PARAMS(int,execvp,"execvp",const char *,file,const char **,argv);
 INTERCEPT_3_PARAMS(int,execve,"execve",const char *,filename,const char **,argv,const char **,envp);
 INTERCEPT_2_VARARGS(int,execlp,"execlp",const char *,file,const char *,arg);
