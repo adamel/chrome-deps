@@ -9,8 +9,12 @@
 %define glib2libver	2800.8
 %define gtk2ver		2.24.7-3.fc15
 %define gtk2libver	2400.7
-
+%define gdkpixbuf2ver 2.23.3-2.fc15
+%define gdkpixbuf2libver 2300.3
+%define libgnomekeyringver 3.4.1-2.fc17
+%define libgnomekeyringlibver 2.0
 %define fedoramirror	http://archives.fedoraproject.org/pub/archive/fedora/linux/updates/15/%{_arch}
+%define f17_os_mirror	http://archives.fedoraproject.org/pub/archive/fedora/linux/releases/17/Everything/%{_arch}/os/Packages/l/
 
 %define chromedir	/opt/google/chrome
 %define instdir		%{chromedir}/lib
@@ -27,7 +31,7 @@
 %endif
 
 Name:		chrome-deps
-Version:	1.2
+Version:	1.3
 Release:	1%{?dist}
 Summary:	Fedora libraries for running chrome on EL6
 Group:		System Environment/Libraries
@@ -38,6 +42,8 @@ Source1:	%{fedoramirror}/glibc-%{glibcver}-%{glibcrel}.%{_target_cpu}.rpm
 Source2:	%{fedoramirror}/libstdc++-%{libstdcxxver}.%{_target_cpu}.rpm
 Source3:	%{fedoramirror}/glib2-%{glib2ver}.%{_target_cpu}.rpm
 Source4:	%{fedoramirror}/gtk2-%{gtk2ver}.%{_target_cpu}.rpm
+Source5:	%{fedoramirror}/gdk-pixbuf2-%{gdkpixbuf2ver}.%{_target_cpu}.rpm
+Source6:	%{f17_os_mirror}/libgnome-keyring-%{libgnomekeyringver}.%{_target_cpu}.rpm
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 
@@ -52,6 +58,8 @@ rpm2cpio %{SOURCE1} | cpio -vid ./%{_lib}/libc-%{glibcver}.so ./%{_lib}/ld-%{gli
 rpm2cpio %{SOURCE2} | cpio -vid .%{_libdir}/libstdc++.so.%{stdcxxver}
 rpm2cpio %{SOURCE3} | cpio -vid ./%{_lib}/libglib-2.0.so.0.%{glib2libver}
 rpm2cpio %{SOURCE4} | cpio -vid .%{_libdir}/libgtk-x11-2.0.so.0.%{gtk2libver} .%{_libdir}/libgdk-x11-2.0.so.0.%{gtk2libver}
+rpm2cpio %{SOURCE5} | cpio -vid .%{_libdir}/libgdk_pixbuf-2.0.so.0.%{gdkpixbuf2libver}
+rpm2cpio %{SOURCE6} | cpio -vid .%{_libdir}/libgnome-keyring.so.0.%{libgnomekeyringlibver}
 
 %build
 # Build preload module.
@@ -80,6 +88,10 @@ install -m 0755 .%{_libdir}/libgdk-x11-2.0.so.0.%{gtk2libver} $RPM_BUILD_ROOT%{i
 ln -s libgdk-x11-2.0.so.0.%{gtk2libver} $RPM_BUILD_ROOT%{instdir}/libgdk-x11-2.0.so.0
 install -m 0755 .%{_libdir}/libgtk-x11-2.0.so.0.%{gtk2libver} $RPM_BUILD_ROOT%{instdir}/
 ln -s libgtk-x11-2.0.so.0.%{gtk2libver} $RPM_BUILD_ROOT%{instdir}/libgtk-x11-2.0.so.0
+install -m 0755 .%{_libdir}/libgdk_pixbuf-2.0.so.0.%{gdkpixbuf2libver} $RPM_BUILD_ROOT%{instdir}/
+ln -s libgdk_pixbuf-2.0.so.0.%{gdkpixbuf2libver} $RPM_BUILD_ROOT%{instdir}/libgdk_pixbuf-2.0.so.0
+install -m 0755 .%{_libdir}/libgnome-keyring.so.0.%{libgnomekeyringlibver} $RPM_BUILD_ROOT%{instdir}/
+ln -s libgnome-keyring.so.0.%{libgnomekeyringlibver} $RPM_BUILD_ROOT%{instdir}/libgnome-keyring.so.0
 # Install chrome wrapper script modification script.
 cat src/modify_wrapper | sed \
    -e "s#@MODIFY_WRAPPER@#modify_wrapper#g" \
@@ -115,10 +127,17 @@ rm -rf $RPM_BUILD_ROOT
 %{instdir}/libgdk-x11-2.0.so.0
 %{instdir}/libgtk-x11-2.0.so.0.%{gtk2libver}
 %{instdir}/libgtk-x11-2.0.so.0
+%{instdir}/libgdk_pixbuf-2.0.so.0.%{gdkpixbuf2libver}
+%{instdir}/libgdk_pixbuf-2.0.so.0
+%{instdir}/libgnome-keyring.so.0.%{libgnomekeyringlibver}
+%{instdir}/libgnome-keyring.so.0
 %{instdir}/unset_var.so
 
 
 %changelog
+* Wed May 07, 2014 Matthew Gyurgyik <gyurgyikms@ornl.gov> - 1.3-1
+- include gdk-pixbuf2 and libgnome-keyring dependencies
+
 * Thu Sep 19 2013 Marcus Sundberg <marcus.sundberg@aptilo.com> - 1.1-1
 - Add unset_var preload wrapper from Richard K. Lloyd. This fixes
   the crashes when chrome tries to execute external programs.
