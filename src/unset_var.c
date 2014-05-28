@@ -1,10 +1,11 @@
-/* unset_var.c 1.02 (C) Richard K. Lloyd 2013 <rklloyd@gmail.com>
+/* unset_var.c 1.10 (C) Richard K. Lloyd 2013 <rklloyd@gmail.com>
 
    LD_PRELOAD code to save LD_LIBRARY_PATH, blank LD_LIBRARY_PATH
-   if the file to be exec'd isn't a full path, run the original
-   exec*() library routine and then restore LD_LIBRARY_PATH.
+   if the file to be exec'd isn't a full path, unset LD_PRELOAD,
+   run the original exec*() library routine and then restore
+   LD_LIBRARY_PATH and LD_PRELOAD.
 
-   This way, we can avoid Fedora 15 libraries being picked up
+   This way, we can avoid Fedora 15/17 libraries being picked up
    by helper apps or plugins that are subsequently loaded by
    Google Chrome.
 
@@ -25,8 +26,9 @@
 #define _GNU_SOURCE
 #endif
 
-/* The environmental variable we're going to unsetenv() */
-#define ENV_VAR "LD_LIBRARY_PATH"
+/* The environmental variables we're going to unsetenv() */
+#define PATH_ENV_VAR "LD_LIBRARY_PATH"
+#define PRELOAD_ENV_VAR "LD_PRELOAD"
 
 /* Some system headers */
 #include <stdio.h>
@@ -41,24 +43,33 @@
 
 /* Define local variables for function, passing in the function return type */
 #define INTERCEPT_LOCAL_VARS(return_type) \
-   char *envptr=getenv(ENV_VAR); \
-   static char savebuf[BUFSIZ]; \
+   char *pathenvptr=getenv(PATH_ENV_VAR), \
+        *preloadenvptr=getenv(PRELOAD_ENV_VAR); \
+   static char pathsavebuf[BUFSIZ],preloadsavebuf[BUFSIZ]; \
    /* FILE *outhand=fopen("/tmp/exec.log","a"); */ \
    return_type retval
 
-/* Save ENV_VAR value in local buffer and then unset it
-   if it's not a full path */
+/* Save PATH_ENV_VAR and PRELOAD_ENV_VAR values in local buffers and then
+   unset the former if it's not a full path or is a Google Talk plugin path
+   and always unset the latter */
 #define INTERCEPT_SAVE_VAR(fname) \
-   if (envptr!=(char *)NULL && envptr[0]!='\0') \
-      (void)snprintf(savebuf,BUFSIZ,ENV_VAR "=%s",envptr); \
-   else savebuf[0]='\0'; \
+   if (pathenvptr!=(char *)NULL && pathenvptr[0]!='\0') \
+      (void)snprintf(pathsavebuf,BUFSIZ,PATH_ENV_VAR "=%s",pathenvptr); \
+   else pathsavebuf[0]='\0'; \
+   if (preloadenvptr!=(char *)NULL && preloadenvptr[0]!='\0') \
+      (void)snprintf(preloadsavebuf,BUFSIZ,PRELOAD_ENV_VAR "=%s",preloadenvptr); \
+   else preloadsavebuf[0]='\0'; \
    /* if (outhand!=(FILE *)NULL) { fprintf(outhand,"%s\n",fname); (void)fclose(outhand); } */ \
    if (strstr(fname,"/")==(char *)NULL || \
-       strstr(fname,"/opt/google/talkplugin/")!=(char *)NULL) unsetenv(ENV_VAR)
+       strstr(fname,"/opt/google/talkplugin/")!=(char *)NULL || \
+       !strcmp(fname,"/opt/google/chrome/google-chrome")) unsetenv(PATH_ENV_VAR); \
+   unsetenv(PRELOAD_ENV_VAR)
 
-/* Restore ENV_VAR value and return value from function. */
+/* Restore PATH_ENV_VAR and PRELOAD_ENV_VAR values if they had any previously
+   and then return the value from the function. */
 #define INTERCEPT_RESTORE_VAR \
-   if (savebuf[0]) putenv(savebuf); else unsetenv(ENV_VAR); \
+   if (pathsavebuf[0]) putenv(pathsavebuf); else unsetenv(PATH_ENV_VAR); \
+   if (preloadsavebuf[0]) putenv(preloadsavebuf); else unsetenv(PRELOAD_ENV_VAR); \
    return(retval)
 
 /* Now string it into macros for different numbers of parameters. */
