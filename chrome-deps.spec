@@ -54,7 +54,7 @@ order to be able to run latest Google Chrome on EL6 and derivates.
 %prep
 %setup -q
 # Extract required libraries.
-rpm2cpio %{SOURCE1} | cpio -vid ./%{_lib}/libc-%{glibcver}.so ./%{_lib}/ld-%{glibcver}.so
+rpm2cpio %{SOURCE1} | cpio -vid ./%{_lib}/libc-%{glibcver}.so ./%{_lib}/ld-%{glibcver}.so ./%{_lib}/libdl-%{glibcver}.so
 rpm2cpio %{SOURCE2} | cpio -vid .%{_libdir}/libstdc++.so.%{stdcxxver}
 rpm2cpio %{SOURCE3} | cpio -vid ./%{_lib}/libglib-2.0.so.0.%{glib2libver}
 rpm2cpio %{SOURCE4} | cpio -vid .%{_libdir}/libgtk-x11-2.0.so.0.%{gtk2libver} .%{_libdir}/libgdk-x11-2.0.so.0.%{gtk2libver}
@@ -66,6 +66,7 @@ rpm2cpio %{SOURCE6} | cpio -vid .%{_libdir}/libgnome-keyring.so.0.%{libgnomekeyr
 make -C src OPTFLAGS="$RPM_OPT_FLAGS"
 # Patch libraries to reference the local copy of ld-linux.
 sed -e "s/%{ld_linux}.so.2/%{ld_linux}.so.0/g" < ./%{_lib}/libc-%{glibcver}.so > ./%{_lib}/libc-%{glibcver}.so.patched
+sed -e "s/%{ld_linux}.so.2/%{ld_linux}.so.0/g" < ./%{_lib}/libdl-%{glibcver}.so > ./%{_lib}/libdl-%{glibcver}.so.patched
 sed -e "s/%{ld_linux}.so.2/%{ld_linux}.so.0/g" < .%{_libdir}/libstdc++.so.%{stdcxxver} > .%{_libdir}/libstdc++.so.%{stdcxxver}.patched
 # Patch the identity of ld-linux itself to get RPM provides right.
 sed -e "s/%{ld_linux}.so.2/%{ld_linux}.so.0/g" < ./%{_lib}/ld-%{glibcver}.so > ./%{_lib}/ld-%{glibcver}.so.patched
@@ -81,6 +82,8 @@ install -m 0755 ./%{_lib}/ld-%{glibcver}.so.patched $RPM_BUILD_ROOT%{instdir}/ld
 ln -s ld-%{glibcver}.so $RPM_BUILD_ROOT%{instdir}/%{ld_linux}.so.0
 install -m 0755 ./%{_lib}/libc-%{glibcver}.so.patched $RPM_BUILD_ROOT%{instdir}/libc-%{glibcver}.so
 ln -s libc-%{glibcver}.so $RPM_BUILD_ROOT%{instdir}/libc.so.6
+install -m 0755 ./%{_lib}/libdl-%{glibcver}.so.patched $RPM_BUILD_ROOT%{instdir}/libdl-%{glibcver}.so
+ln -s libdl-%{glibcver}.so $RPM_BUILD_ROOT%{instdir}/libdl.so.2
 install -m 0755 .%{_libdir}/libstdc++.so.%{stdcxxver}.patched $RPM_BUILD_ROOT%{instdir}/libstdc++.so.%{stdcxxver}
 ln -s libstdc++.so.%{stdcxxver} $RPM_BUILD_ROOT%{instdir}/libstdc++.so.6
 install -m 0755 ./%{_lib}/libglib-2.0.so.0.%{glib2libver} $RPM_BUILD_ROOT%{instdir}/
@@ -120,6 +123,8 @@ rm -rf $RPM_BUILD_ROOT
 %{instdir}/%{ld_linux}.so.0
 %{instdir}/libc-%{glibcver}.so
 %{instdir}/libc.so.6
+%{instdir}/libdl-%{glibcver}.so
+%{instdir}/libdl.so.2
 %{instdir}/libstdc++.so.%{stdcxxver}
 %{instdir}/libstdc++.so.6
 %{instdir}/libglib-2.0.so.0.%{glib2libver}
