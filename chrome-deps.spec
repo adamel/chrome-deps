@@ -138,6 +138,9 @@ rm -rf $RPM_BUILD_ROOT
 * Wed May 07 2014 Matthew Gyurgyik <gyurgyikms@ornl.gov> - 1.3-1
 - Include gdk-pixbuf2 and libgnome-keyring dependencies.
 
+* Thu Sep 26 2013 Marcus Sundberg <marcus.sundberg@aptilo.com> - 1.2-1
+- Intercept system() function as well.
+
 * Thu Sep 19 2013 Marcus Sundberg <marcus.sundberg@aptilo.com> - 1.1-1
 - Add unset_var preload wrapper from Richard K. Lloyd. This fixes
   the crashes when chrome tries to execute external programs.
