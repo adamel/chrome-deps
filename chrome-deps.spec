@@ -141,6 +141,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jun 03 2014 Marcus Sundberg <marcus.sundberg@aptilo.com> - 1.4-1
+- Update unset_var to version 1.10 from install_chrome.sh 4.70.
+- Patch libstdc++ to reference local ld-linux as well.
+- Include libdl in preloaded compat libraries.
+
 * Wed May 07 2014 Matthew Gyurgyik <gyurgyikms@ornl.gov> - 1.3-1
 - Include gdk-pixbuf2 and libgnome-keyring dependencies.
 
