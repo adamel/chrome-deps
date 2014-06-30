@@ -57,6 +57,8 @@ order to be able to run latest Google Chrome on EL6 and derivates.
 rpm2cpio %{SOURCE1} | cpio -vid ./%{_lib}/libc-%{glibcver}.so ./%{_lib}/ld-%{glibcver}.so ./%{_lib}/libdl-%{glibcver}.so
 rpm2cpio %{SOURCE2} | cpio -vid .%{_libdir}/libstdc++.so.%{stdcxxver}
 rpm2cpio %{SOURCE3} | cpio -vid ./%{_lib}/libglib-2.0.so.0.%{glib2libver}
+rpm2cpio %{SOURCE3} | cpio -vid ./%{_lib}/libgio-2.0.so.0.%{glib2libver}
+rpm2cpio %{SOURCE3} | cpio -vid ./%{_lib}/libgobject-2.0.so.0.%{glib2libver}
 rpm2cpio %{SOURCE4} | cpio -vid .%{_libdir}/libgtk-x11-2.0.so.0.%{gtk2libver} .%{_libdir}/libgdk-x11-2.0.so.0.%{gtk2libver}
 rpm2cpio %{SOURCE5} | cpio -vid .%{_libdir}/libgdk_pixbuf-2.0.so.0.%{gdkpixbuf2libver}
 rpm2cpio %{SOURCE6} | cpio -vid .%{_libdir}/libgnome-keyring.so.0.%{libgnomekeyringlibver}
@@ -88,6 +90,10 @@ install -m 0755 .%{_libdir}/libstdc++.so.%{stdcxxver}.patched $RPM_BUILD_ROOT%{i
 ln -s libstdc++.so.%{stdcxxver} $RPM_BUILD_ROOT%{instdir}/libstdc++.so.6
 install -m 0755 ./%{_lib}/libglib-2.0.so.0.%{glib2libver} $RPM_BUILD_ROOT%{instdir}/
 ln -s libglib-2.0.so.0.%{glib2libver} $RPM_BUILD_ROOT%{instdir}/libglib-2.0.so.0
+install -m 0755 ./%{_lib}/libgio-2.0.so.0.%{glib2libver} $RPM_BUILD_ROOT%{instdir}/
+ln -s libgio-2.0.so.0.%{glib2libver} $RPM_BUILD_ROOT%{instdir}/libgio-2.0.so.0
+install -m 0755 ./%{_lib}/libgobject-2.0.so.0.%{glib2libver} $RPM_BUILD_ROOT%{instdir}/
+ln -s libgobject-2.0.so.0.%{glib2libver} $RPM_BUILD_ROOT%{instdir}/libgobject-2.0.so.0
 install -m 0755 .%{_libdir}/libgdk-x11-2.0.so.0.%{gtk2libver} $RPM_BUILD_ROOT%{instdir}/
 ln -s libgdk-x11-2.0.so.0.%{gtk2libver} $RPM_BUILD_ROOT%{instdir}/libgdk-x11-2.0.so.0
 install -m 0755 .%{_libdir}/libgtk-x11-2.0.so.0.%{gtk2libver} $RPM_BUILD_ROOT%{instdir}/
@@ -129,6 +135,10 @@ rm -rf $RPM_BUILD_ROOT
 %{instdir}/libstdc++.so.6
 %{instdir}/libglib-2.0.so.0.%{glib2libver}
 %{instdir}/libglib-2.0.so.0
+%{instdir}/libgio-2.0.so.0.%{glib2libver}
+%{instdir}/libgio-2.0.so.0
+%{instdir}/libgobject-2.0.so.0.%{glib2libver}
+%{instdir}/libgobject-2.0.so.0
 %{instdir}/libgdk-x11-2.0.so.0.%{gtk2libver}
 %{instdir}/libgdk-x11-2.0.so.0
 %{instdir}/libgtk-x11-2.0.so.0.%{gtk2libver}
