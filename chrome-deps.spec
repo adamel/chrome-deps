@@ -151,6 +151,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jun 30 2014 Marcus Sundberg <marcus.sundberg@aptilo.com> - 1.5-1
+- Include libgio and libgobject libraries from the glib2 Fedora RPM.
+
 * Tue Jun 03 2014 Marcus Sundberg <marcus.sundberg@aptilo.com> - 1.4-1
 - Update unset_var to version 1.10 from install_chrome.sh 4.70.
 - Patch libstdc++ to reference local ld-linux as well.
