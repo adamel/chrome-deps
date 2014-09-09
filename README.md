@@ -23,22 +23,22 @@ rpm/yum to install and upgrade the google-chrome package.
 - In order to build an x86_64 (64-bit) version you need to download the
   following files to ~/rpmbuild/SOURCES/
 
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/x86_64/gdk-pixbuf2-2.23.3-2.fc15.x86_64.rpm
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/x86_64/glib2-2.28.8-1.fc15.x86_64.rpm
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/x86_64/glibc-2.14.1-6.x86_64.rpm
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/x86_64/gtk2-2.24.7-3.fc15.x86_64.rpm
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/x86_64/libstdc++-4.6.3-2.fc15.x86_64.rpm
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/releases/17/Fedora/x86_64/os/Packages/l/libgnome-keyring-3.4.1-2.fc17.x86_64.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/x86_64/gdk-pixbuf2-2.23.3-2.fc15.x86_64.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/x86_64/glib2-2.28.8-1.fc15.x86_64.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/x86_64/glibc-2.14.1-6.x86_64.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/x86_64/gtk2-2.24.7-3.fc15.x86_64.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/x86_64/libstdc++-4.6.3-2.fc15.x86_64.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/releases/17/Fedora/x86_64/os/Packages/l/libgnome-keyring-3.4.1-2.fc17.x86_64.rpm
 
 - In order to build an i686 (32-bit) version you need to download the
   following files to ~/rpmbuild/SOURCES/
 
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/i386/gdk-pixbuf2-2.23.3-2.fc15.i686.rpm
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/i386/glib2-2.28.8-1.fc15.i686.rpm
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/i386/glibc-2.14.1-6.i686.rpm
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/i386/gtk2-2.24.7-3.fc15.i686.rpm
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/i386/libstdc++-4.6.3-2.fc15.i686.rpm
-  http://dl.fedoraproject.org/pub/archive/fedora/linux/releases/17/Fedora/i386/os/Packages/l/libgnome-keyring-3.4.1-2.fc17.i686.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/i386/gdk-pixbuf2-2.23.3-2.fc15.i686.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/i386/glib2-2.28.8-1.fc15.i686.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/i386/glibc-2.14.1-6.i686.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/i386/gtk2-2.24.7-3.fc15.i686.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/updates/15/i386/libstdc++-4.6.3-2.fc15.i686.rpm
+  * http://dl.fedoraproject.org/pub/archive/fedora/linux/releases/17/Fedora/i386/os/Packages/l/libgnome-keyring-3.4.1-2.fc17.i686.rpm
 
 - To build the chrome-deps RPM you use:
   rpmbuild -bb chrome-deps.spec
