@@ -20,6 +20,10 @@ rpm/yum to install and upgrade the google-chrome package.
     symlinks with the names expected by the dynamic linker are
     created.
 
+to install visit the webpage http://software.opensuse.org/download.html?project=home%3Aandykimpe%3Afreshplayerplugin&package=chrome-deps
+
+to compile
+
 - In order to build an x86_64 (64-bit) version you need to download the
   following files to ~/rpmbuild/SOURCES/
 
