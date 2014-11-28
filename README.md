@@ -86,4 +86,5 @@ rpm/yum to install and upgrade the google-chrome package.
 
 
 - To build the chrome-deps RPM you use:
-  rpmbuild -tb chrome-deps-1.4.tar.gz
+
+<code>rpmbuild -tb chrome-deps-1.4.tar.gz</code>
