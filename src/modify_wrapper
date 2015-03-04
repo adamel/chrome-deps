@@ -1,10 +1,10 @@
 #! /bin/bash
-# @MODIFY_WRAPPER@ @WRAPPER_MOD_VERSION@ (C) Richard K. Lloyd 2013 <rklloyd@gmail.com>
+# @MODIFY_WRAPPER@ @WRAPPER_MOD_VERSION@ (C) Richard K. Lloyd 2015 <rklloyd@gmail.com>
 # Created by @SCRIPTNAME@ and included in the @DEPS_NAME@ RPM
 # to modify @CHROME_DEFAULTS@ in the following ways:
 # - Remove any existing setting of repo_add_once
 # - Updates (or adds) a custom ### START .. ### END section, which will
-#   add an LD_PRELOAD definition to google-chrome if one isn't present.
+#   adjust the dubious "exec cat" commands in google-chrome.
 # - Sets repo_add_once to true (picked up by /etc/cron.daily/google-chrome)
 # @MODIFY_WRAPPER@ is run once at the end of the @DEPS_NAME@ RPM installation.
 
@@ -56,7 +56,7 @@ update_file()
       chmod a+r "$1"
       error "Failed to update $1"
    fi
-
+   
    chmod a+r "$1"
    rm -f "$ofile"
 }
@@ -87,27 +87,29 @@ END {
    {
       printf("### START %s %s modifications\n",
              wrapper_mod_version,scriptname);
-      printf("old_line=\"export LD_LIBRARY_PATH\"\n");
-      printf("new_line=\"$old_line LD_PRELOAD=\\\"%s\\\"\"\n",unsetlib);
-      printf("chrome_wrapper=\"%s\"\n",chrome_wrapper);
-      printf("if [ -s \"$chrome_wrapper\" ]\n");
-      printf("then\n");
-      printf("   if [ \"`grep \\\"$new_line\\\" \\\"$chrome_wrapper\\\"`\" = \"\" ]\n");
+      printf("old_line=\"exec cat\"\n");
+      printf("for eachtype in \"\" -beta -unstable\n");
+      printf("do\n");
+      printf("   chrome_wrapper=\"/opt/google/chrome$eachtype/google-chrome$eachtype\"\n");
+      printf("   if [ -s \"$chrome_wrapper\" ]\n");
       printf("   then\n");
-      printf("      new_wrapper=\"$chrome_wrapper.new\"\n");
-      printf("      sed -e \"s#$old_line#$new_line#g\" <\"$chrome_wrapper\" >\"$new_wrapper\"\n");
-      printf("      if [ -s \"$new_wrapper\" ]\n");
+      printf("      if [ \"`grep \\\"$old_line\\\" \\\"$chrome_wrapper\\\"`\" != \"\" ]\n");
       printf("      then\n");
-      printf("         mv -f \"$new_wrapper\" \"$chrome_wrapper\"\n");
-      printf("         chmod a+rx \"$chrome_wrapper\"\n");
+      printf("         new_wrapper=\"$chrome_wrapper.new\"\n");
+      printf("         sed -e \"s#>(exec cat)#/dev/null#g\" -e \"s#>(exec cat >&2)#/dev/null#g\" <\"$chrome_wrapper\" >\"$new_wrapper\"\n");
+      printf("         if [ -s \"$new_wrapper\" ]\n");
+      printf("         then\n");
+      printf("            mv -f \"$new_wrapper\" \"$chrome_wrapper\"\n");
+      printf("            chmod a+rx \"$chrome_wrapper\"\n");
+      printf("         fi\n");
       printf("      fi\n");
       printf("   fi\n");
-      printf("fi\n");
+      printf("done\n");
       printf("### END %s %s modifications\n",
              wrapper_mod_version,scriptname);
    }
    printf("repo_add_once=\"true\"\n");
-}' wrapper_mod_version="@WRAPPER_MOD_VERSION@" scriptname="@SCRIPTNAME@" unsetlib="@UNSETLIB@" chrome_wrapper="@CHROME_WRAPPER@" |
+}' wrapper_mod_version="@WRAPPER_MOD_VERSION@" scriptname="@SCRIPTNAME@" customlib="@CUSTOMLIB@" |
 update_file "$chrome_defaults"
 
 # Now actually run the defaults file (it will be run daily via cron or

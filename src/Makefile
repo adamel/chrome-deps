@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -fpic $(OPTFLAGS)
 LDFLAGS = -shared -ldl
 
-all: unset_var.so
+all: libgnome-keyring.so
 
 %.so : %.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
