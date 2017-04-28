@@ -1,3 +1,8 @@
+# This is no longer maintained
+
+  RHEL 7/CentOS 7 was released 3 years ago, so just upgrade to that if
+  you want to use Chrome.
+
 This spec file was inspired by the install_chrome.sh script by Richard
 K. Lloyd, as found on http://chrome.richardlloyd.org.uk/
 
